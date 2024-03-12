@@ -1,0 +1,38 @@
+/*
+ Theme Name:   Twenty Nineteen Child
+ Theme URI:    http://www.spurrhouse.com/twentynineteen-child/
+ Description:  A child theme, based on Twenty Nineteen
+ Author:       Dave Spurr
+ Author URI:   http://www.spurrhouse.com/
+ Template:     twentynineteen
+ Version:      1.0.0
+ Tags:         black, green, white, light, dark, two-columns, three-columns, left-sidebar, right-sidebar, fixed-layout, responsive-layout, custom-background, custom-header, custom-menu, editor-style, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready, accessibility-ready, responsive-layout, infinite-scroll, post-slider, design, food, journal, magazine, news, photography, portfolio, clean, contemporary, dark, elegant, modern, professional, sophisticated
+ Text Domain:  twenty-nineteen-child
+*/
+
+/* =Theme customization starts here
+------------------------------------------------------- */
+
+.resource-module {
+	
+	width:96%;
+}
+
+th {
+    font-size: 0.7em;
+}
+
+th, td {
+    max-width:0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.col-1 {
+    width:40%;
+}
+
+.col-2,.col-3,.col-4,.col-5,.col-6,.col-7 {
+    width: 10%;
+}
