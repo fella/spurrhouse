@@ -19,7 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php
+		<?php echo '<h3>Gitt out at 2:52!</h3>';
 		the_content();
 
 		wp_link_pages(
