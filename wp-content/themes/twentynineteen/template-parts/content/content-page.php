@@ -19,7 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3>Well, today is a new day! It\'s March 15, 2024
+		<?php echo '<h3>Here\'s the ds/315 feature March 15, 2024
 		1</h3>';
 		the_content();
 
