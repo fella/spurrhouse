@@ -19,7 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3>Gitt out this new feature!</h3>';
+		<?php echo '<h3>It is now 2:49 on March 15, 2024!</h3>';
 		the_content();
 
 		wp_link_pages(
