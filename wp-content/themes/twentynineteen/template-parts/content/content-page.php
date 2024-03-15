@@ -19,7 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3>Gitt out this new feature!</h3>';
+		<?php echo '<h3>Gitt out this new 4:26 feature, eh?</h3>';
 		the_content();
 
 		wp_link_pages(
