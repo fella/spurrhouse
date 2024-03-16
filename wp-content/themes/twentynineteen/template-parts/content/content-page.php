@@ -20,7 +20,7 @@
 
 	<div class="entry-content">
 		<?php echo '<h3New Feature</h3>';?>
-			<p>The time is 11:05!</p>
+			<p>This feature is called 12:55</p>
 		<?php
 		the_content();
 
