@@ -19,8 +19,9 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3>Well, today is a new day! It\'s March 15, 2024
-		1</h3>';
+		<?php echo '<h3New Feature</h3>';?>
+			<p>The time is 11:05!</p>
+		<?php
 		the_content();
 
 		wp_link_pages(
