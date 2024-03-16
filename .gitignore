@@ -22,7 +22,11 @@
 wp-config.php
 
 # Example themes
+<<<<<<< HEAD
 /wp-content/themes/twenty*/
+=======
+# /wp-content/themes/twenty*/
+>>>>>>> new-feature
 
 # Example plugin
 /wp-content/plugins/hello.php
@@ -60,3 +64,7 @@ wp-config.php
 # See the comments below for more info on how to add exceptions for your
 # content. Or see git's documentation for more info on .gitignore files:
 # http://kernel.org/pub/software/scm/git/docs/gitignore.html
+<<<<<<< HEAD
+=======
+
+>>>>>>> new-feature
