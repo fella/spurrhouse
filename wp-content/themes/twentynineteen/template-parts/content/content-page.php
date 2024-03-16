@@ -19,7 +19,9 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3>It is now 3:35 Mr. New Feature branch on March 15, 2024!</h3>';
+		<?php echo '<h3New Feature</h3>';?>
+			<p>The time is 11:05!</p>
+		<?php
 		the_content();
 
 		wp_link_pages(
