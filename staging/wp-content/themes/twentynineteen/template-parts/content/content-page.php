@@ -19,9 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3New Feature</h3>';?>
-			<p>This feature is called 12:55</p>
-		<?php
+		<?php echo '<h3>Gitt out this new 4:26 feature, eh?</h3>';
 		the_content();
 
 		wp_link_pages(

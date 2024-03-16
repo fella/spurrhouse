@@ -18,7 +18,7 @@
 	</header>
 	<?php endif; ?>
 	<div class="entry-content">
-		<?php echo '<h3>GITT OUT, 928</h3>';
+		<?php
 		the_content(
 			sprintf(
 				wp_kses(
