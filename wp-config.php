@@ -1,17 +1,17 @@
 <?php
 if($_SERVER['SERVER_NAME']=="localhost") //change if local server name is different
 {
-    $db_name='local_db_name';
-    $db_username='local_db_username';
-    $db_password='local_db_password';
-    $db_host='local_db_host';
+    $db_name='spurrhousedb';
+    $db_username='spurrhousedb';
+    $db_password='Sup3rf0xy!';
+    $db_host='mysql';
 }
 else // production server database credentials
 {
-    $db_name='production_db_name';
-    $db_username='production_db_username';
-    $db_password='production_db_password';
-    $db_host='production_db_host';      
+    $db_name='spuruomz_wp681';
+    $db_username='spuruomz_wp681';
+    $db_password='Sup3rf0xy!';
+    $db_host='localhost';      
 }
 define( 'WP_CACHE', true );
 /**
