@@ -1,5 +1,5 @@
 <?php
-if($_SERVER['SERVER_NAME']=="localhost") //change if local server name is different
+if($_SERVER['SERVER_NAME']=="spurrhouse.dls") //change if local server name is different
 {
     $db_name='spurrhousedb';
     $db_username='spurrhousedb';
@@ -11,8 +11,16 @@ else // production server database credentials
     $db_name='spuruomz_wp681';
     $db_username='spuruomz_wp681';
     $db_password='Sup3rf0xy!';
-    $db_host='spurrhouse.com';
+    $db_host='localhost';
 }
+
+/*
+$db_name='spurrhousedb';
+$db_username='spurrhousedb';
+$db_password='Sup3rf0xy!';
+$db_host= 'mysql';
+*/
+print_r($_SERVER['SERVER_NAME']);
 
 define( 'WP_CACHE', true );
 /**
