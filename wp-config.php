@@ -1,4 +1,18 @@
 <?php
+if($_SERVER['SERVER_NAME']=="localhost") //change if local server name is different
+{
+    $db_name='spurrhousedb';
+    $db_username='spurrhousedb';
+    $db_password='Sup3rf0xy!';
+    $db_host='mysql';
+}
+else // production server database credentials
+{
+    $db_name='spuruomz_wp681';
+    $db_username='spuruomz_wp681';
+    $db_password='Sup3rf0xy!';
+    $db_host='localhost';      
+}
 define( 'WP_CACHE', true );
 /**
  * The base configuration for WordPress
@@ -21,16 +35,16 @@ define( 'WP_CACHE', true );
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'spurrhousedb' );
+define( 'DB_NAME', $db_name );
 
 /** Database username */
-define( 'DB_USER', 'spurrhousedb' );
+define( 'DB_USER', $db_username );
 
 /** Database password */
-define( 'DB_PASSWORD', 'Sup3rf0xy!' );
+define( 'DB_PASSWORD', $db_password );
 
 /** Database hostname */
-define( 'DB_HOST', 'mysql' );
+define( 'DB_HOST', $db_host );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8mb4' );
