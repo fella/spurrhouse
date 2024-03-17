@@ -11,7 +11,7 @@ else // production server database credentials
     $db_name='spuruomz_wp681';
     $db_username='spuruomz_wp681';
     $db_password='Sup3rf0xy!';
-    $db_host='spurrhouse.com';
+    $db_host='localhost';
 }
 
 /*
