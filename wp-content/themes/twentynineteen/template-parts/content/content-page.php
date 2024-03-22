@@ -20,7 +20,7 @@
 
 	<div class="entry-content">
 		<?php echo '<h3New Feature</h3>';?>
-			<p style="font-size:20px;font-weight:700">Y this is one heck-a-vuh feature, HODAD!</p>
+			<p style="font-size:24px;font-weight:600">ROCKIN' DADDIO!</p>
 		<?php
 		the_content();
 
