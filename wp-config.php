@@ -20,7 +20,7 @@ $db_username='spurrhousedb';
 $db_password='Sup3rf0xy!';
 $db_host= 'mysql';
 */
-print_r($_SERVER['SERVER_NAME']);
+// print_r($_SERVER['SERVER_NAME']);
 
 define( 'WP_CACHE', true );
 /**
