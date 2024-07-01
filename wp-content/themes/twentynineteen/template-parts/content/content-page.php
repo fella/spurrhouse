@@ -19,7 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3New Feature</h3>';?>
+		<?php echo '<h3>This be stagin\', dadd!</h3>';?>
 			<p style="font-size:24px;font-weight:600">ROCKIN' DADDIO!</p>
 		<?php
 		the_content();
