@@ -7,6 +7,17 @@ if(!defined('ABSPATH')){
 // Cron for Calling Auto Backup
 add_action('backuply_auto_backup_cron', 'backuply_auto_backup_execute');
 
+// Auto Backup using custom cron
+if(isset($_GET['action'])  && $_GET['action'] == 'backuply_custom_cron'){
+
+	if(!backuply_verify_self(sanitize_text_field(wp_unslash($_REQUEST['backuply_key'])))){
+		backuply_status_log('Security Check Failed', 'error');
+		die();
+	}
+	
+	backuply_auto_backup_execute();
+}
+
 // Adds a Wp-Cron for autobackup
 function backuply_add_auto_backup_schedule($schedule = '') {
 	global $backuply;
@@ -23,7 +34,7 @@ function backuply_add_auto_backup_schedule($schedule = '') {
 // Initiates auto backup
 function backuply_auto_backup_execute(){
 	global $backuply;
-	
+
 	if(empty($backuply['bcloud_key'])){
 		return false;
 	}
@@ -60,15 +71,15 @@ function backuply_backup_rotation() {
 
 	$backup_info = array_filter($backup_info, 'backuply_bcloud_filter_backups_on_loc');
 	usort($backup_info, 'backuply_bcloud_oldest_backup');
-	
+
 	if(count($backup_info) >= $backuply['status']['backup_rotation']) {
 		if(empty($backup_info[0])) {
 			return;
 		}
-		
+
 		backuply_log('Deleting Files because of Backup rotation');
 		backuply_status_log('Deleting backup because of Backup rotation', 39);
-		
+
 		$extra_backups = count($backup_info) - $backuply['status']['backup_rotation'];
 		
 		if($extra_backups > 0) {
@@ -80,24 +91,23 @@ function backuply_backup_rotation() {
 }
 
 function backuply_bcloud_oldest_backup($a, $b) {
-	return $a->btime > $b->btime;
+	return (int) $a->btime - (int) $b->btime;
 }
 
 // Returns backups based on location
 function backuply_bcloud_filter_backups_on_loc($backup) {
 	global $backuply;
-	
+
 	if(!isset($backup->backup_location)){
 		return ($backup->auto_backup);
 	}
-	
+
 	return ($backuply['status']['backup_location'] == $backup->backup_location && $backup->auto_backup);
 }
 
 function backuply_bcloud_isallowed(){
 	global $backuply;
-	
-	
+
 	if(!empty(get_transient('bcloud_data'))){
 		return true;
 	}

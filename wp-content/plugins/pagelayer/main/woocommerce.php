@@ -58,7 +58,7 @@ add_filter('wp_nav_menu_items', 'pagelayer_add_woo_cart', 10, 2);
 add_filter('wp_page_menu', 'pagelayer_add_woo_cart', 10, 2);
 function pagelayer_add_woo_cart($items, $args) {
 		
-	$menu_id = $args->menu->term_id;
+	$menu_id = isset($args->menu->term_id) ? $args->menu->term_id : '';
 	$locations = get_nav_menu_locations();
 	
 	//pagelayer_print($locations);
@@ -211,7 +211,7 @@ function pagelayer_woocommerce_styles(){
 	// Apply customizer css
 	foreach($woo_styles as $key => $rules){
 		
-		$value = @$options[$key];
+		$value = pagelayer_isset($options, $key);
 		
 		if(empty($value) && $value != '0'){
 			continue;
@@ -736,6 +736,5 @@ function pagelayer_load_product_template($post = []){
 	wp_enqueue_style( 'woocommerce_prettyPhoto_css' );
 }
 
-if(defined('PAGELAYER_PREMIUM')){
-	include_once(dirname(__FILE__).'/premium-woocommerce.php');
-}
+// Apply filter to load extra woocommerce settings
+do_action('pagelayer_after_wc_customization');

@@ -2,9 +2,9 @@
 Contributors: softaculous, backuply
 Tags: backup, restore, database backup, cloud backup, wordpress backup, migration, cloning, backuply, local backup, amazon s3, database, google drive, gdrive, dropbox, FTP, SCP, SFTP, onedrive, WebDAV
 Requires at least: 4.7
-Tested up to: 6.4
+Tested up to: 6.6
 Requires PHP: 5.5
-Stable tag: 1.2.7
+Stable tag: 1.3.5
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -84,6 +84,48 @@ Go To your WordPress install -> Plugins -> Add New Button -> In Search Box searc
 7. **Backup Process** easy to understand backup progress.
 
 == Changelog ==
+
+= 1.3.5 (September 13th 2024) =
+* [Security-Fix] A security issue reported by bart[WordFence], has been fixed.
+* [Improvement] Serialization fix has been improved, its now atleast 100 times faster now.
+
+= 1.3.4 (September 6th 2024) =
+* [Improvement] Restores are now faster.
+* [Bug-Fix] There was an issue with serialization fix, that has been fixed.
+* [Bug-Fix] On some servers backup request was getting blocked as WordPress's default User Agent add url too in it which some servers and firewalls sees to be suspicious, this has been fixed.
+
+= 1.3.3 (July 27th 2024) =
+* [Improvement] Restore timeouts have been improved to handle restores easily on the slow servers.
+* [Improvement] Downloads of local backpup will be handled directly by the browser now.
+* [Task] Tested with WordPress 6.6.
+* [Bug-Fix] There was an issue adding Backuply Cloud, if the user has reached quota limit, that has been fixed.
+
+= 1.3.2 (June 19th 2024) =
+* [Improvement] Restores work better now, will go in maintenance mode when restoring database to prevent noise from WordPress or plugin functionalities, which could break the restore sometimes.
+* [Improvement] We have refactored Google Drive lib and it will improve the speed of download when restoring by around 10%.
+* [Improvement] Backups will sync just after they are uploaded, using Backuply's upload module.
+* [Bug-Fix] PHP warnings on backup_ins.php has been fixed.
+* [Bug-Fix] PHP warnings when deletion of backups has been fixed.
+
+= 1.3.1 (May 09th 2024) =
+* [Bug-Fix] There was a issue with restore for some user, where Backuply was unable to unzip, that has been fixed.
+* [Bug-Fix] There was an issue with migration in case when the wp-config.php file was not writable, that has been fixed.
+* [Bug-Fix] sanitize_file_name function was adding a _ in the file names which was preventing downloads for some domains, which has been fixed.
+* [Bug-Fix] Some PHP warnings has been fixed.
+
+= 1.3.0 (April 16th 2024) =
+* [Bug-Fix] There was issue downloading Backups for some users that has been fixed.
+* [Bug-Fix] There was an issue connecting to Database when the database was being served over a socket, that has been fixed.
+* [Bug-Fix] There was issue in using Custom Cron for Bcloud users that has been fixed.
+* [Bug-Fix] For some of the OneDrive users there was a error when trying to add the Backup location, that has been fixed.
+
+= 1.2.9 (March 26th 2024) =
+* [Bug-Fix] There was an issue with download for some user because of their WordPress not supporting tar or gz mime types, this has been fixed.
+* [Bug-Fix] There was an issue when syncing a backup uploaded manually which originally belonged to backup location other than Local Folder, would not show in the Backup History, that has been fixed.
+* [Task] Tested with WordPress 6.5.
+
+= 1.2.8 (March 13 2024) =
+* [Improvement] We have made improvements to make Backup Downloads better.
 
 = 1.2.7 (February 16 2024) =
 * [Bug-Fix] Version 1.2.5 got included in the plugin package, this release is to fix that.

@@ -72,7 +72,7 @@ function pagelayer_page_footer($no_twitter = 0){
 			echo '
 			<div class="postbox" style="min-width:0px !important;">
 				<h2 class="hndle ui-sortable-handle">
-					<span><a target="_blank" href="'.PAGELAYER_PRO_URL.'"><img src="'.PAGELAYER_URL.'/images/pagelayer_product.png" width="100%" /></a></span>
+					<span><a target="_blank" href="'.PAGELAYER_PRO_PRICE_URL.'"><img src="'.PAGELAYER_URL.'/images/pagelayer_product.png" width="100%" /></a></span>
 				</h2>
 				<div class="inside">
 					<i>Upgrade to the premium version and get the following features </i>:<br>
@@ -87,7 +87,7 @@ function pagelayer_page_footer($no_twitter = 0){
 						<li>Popup Builder</li>
 						<li>And many more ...</li>
 					</ul>
-					<center><a class="button button-primary" target="_blank" href="'.PAGELAYER_PRO_URL.'">Upgrade</a></center>
+					<center><a class="button button-primary" target="_blank" href="'.PAGELAYER_PRO_PRICE_URL.'">Upgrade</a></center>
 				</div>
 			</div>';
 			
@@ -235,7 +235,7 @@ function pagelayer_settings_page(){
 	
 	if(isset($_POST['pagelayer-gmaps-api-key'])){
 
-		$maps_id = $_REQUEST['pagelayer-gmaps-api-key'];
+		$maps_id = sanitize_text_field($_REQUEST['pagelayer-gmaps-api-key']);
 			
 		update_option( 'pagelayer-gmaps-api-key', $maps_id );
 		
@@ -306,7 +306,7 @@ function pagelayer_settings_page(){
 		
 		if(isset($_POST['pagelayer_google_captcha'])){
 
-			$captcha = $_REQUEST['pagelayer_google_captcha'];
+			$captcha = sanitize_text_field($_REQUEST['pagelayer_google_captcha']);
 			
 			update_option( 'pagelayer_google_captcha', $captcha );
 		
@@ -316,7 +316,7 @@ function pagelayer_settings_page(){
 		
 		if(isset($_POST['pagelayer_google_captcha_secret'])){
 
-			$captcha_secret = $_REQUEST['pagelayer_google_captcha_secret'];
+			$captcha_secret = sanitize_text_field($_REQUEST['pagelayer_google_captcha_secret']);
 			
 			update_option( 'pagelayer_google_captcha_secret', $captcha_secret );
 		
@@ -336,7 +336,8 @@ function pagelayer_settings_page(){
 		
 		// Facebook APP ID
 		if(isset($_POST['pagelayer-fbapp-id'])){
-			$fb_app_id = $_REQUEST['pagelayer-fbapp-id'];
+			$fb_app_id = sanitize_text_field($_REQUEST['pagelayer-fbapp-id']);
+
 			
 			if(preg_match('/\W/is', $fb_app_id)){
 				$pl_error[] = 'The Facebook App ID is not correct';
@@ -651,7 +652,7 @@ function pagelayer_settings_page(){
 						<table>
 							<tr>
 								<th><?php _e('Address');?></th>
-								<td><textarea name="pagelayer-address"><?php echo pagelayer_get_option('pagelayer-address');?></textarea></td>
+								<td><textarea name="pagelayer-address"><?php echo esc_html(pagelayer_get_option('pagelayer-address'));?></textarea></td>
 							</tr>
 							<tr>
 								<th><?php _e('Phone Number');?></th>
@@ -732,7 +733,7 @@ function pagelayer_settings_page(){
 						<tr>
 							<th><?php _e('App ID');?></th>
 							<td><input type="text" name="pagelayer-fbapp-id" class="pagelayer-app-id" <?php if(get_option('pagelayer-fbapp-id')){
-									echo 'value="'.get_option('pagelayer-fbapp-id').'"';
+									echo 'value="'.esc_html(get_option('pagelayer-fbapp-id')).'"';
 								}?>/></td>
 						</tr>
 					</table>
@@ -747,7 +748,7 @@ function pagelayer_settings_page(){
 						<tr>
 							<th style="vertical-align:top"><?php _e('Project ID');?></th>
 							<td><input type="text" name="pagelayer-gmaps-api-key" class="pagelayer-gmaps-api-key" <?php if(get_option('pagelayer-gmaps-api-key')){
-									echo 'value="'.get_option('pagelayer-gmaps-api-key').'"';
+									echo 'value="'. esc_html(get_option('pagelayer-gmaps-api-key')).'"';
 								}?>/><p><?php _e('Insert google maps API key. <a href="https://pagelayer.com/docs/pagelayer-widgets/google-maps/"><strong>CLICK HERE</strong></a> to get help in getting API key.') ?></p></td>
 						</tr>					
 					</table>

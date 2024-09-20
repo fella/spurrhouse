@@ -18,7 +18,7 @@ function backuply_get_protocols(){
 	
 	if(defined('BACKUPLY_PRO')) {
 		
-		if(!function_exists('backuply_get_pro_backups')) {
+		if(!function_exists('backuply_get_pro_backups') && defined('BACKUPLY_PRO_DIR')) {
 			include_once(BACKUPLY_PRO_DIR . '/functions.php');
 		}
 		
@@ -218,7 +218,7 @@ function backuply_verify_self($key, $restore_key = false) {
 	$config = backuply_get_config();
 	
 	if(!empty($restore_key)){
-		if(urldecode($key) == $config['RESTORE_KEY']) {
+		if(!empty($config['RESTORE_KEY']) && urldecode($key) == $config['RESTORE_KEY']) {
 			return true;
 		}
 		
@@ -275,7 +275,7 @@ function backuply_timeout_check($is_restore) {
 function backuply_set_config() {
 	
 	$write['BACKUPLY_KEY'] = backuply_csrf_get_token();
-	$write['RESTORE_KEY'] = backuply_csrf_get_token();
+	// $write['RESTORE_KEY'] = backuply_csrf_get_token();
 	
 	update_option('backuply_config_keys', $write);
 }
@@ -437,7 +437,7 @@ function backuply_get_status($last_log = 0){
 	if(!file_exists($log_file)){
 		$logs[] = 'Something went wrong!|error';
 		delete_option('backuply_status');
-		update_option('backuply_backup_stopped', 1);
+		update_option('backuply_backup_stopped', 1, false);
 		return $logs;
 	}
 	
@@ -801,10 +801,13 @@ function backuply_log($data){
  */
 function backuply_preg_replace($pattern, $file, &$var, $valuenum, $stripslashes = ''){	
 	preg_match($pattern, $file, $matches);
-	if(empty($stripslashes)){
-		$var = trim($matches[$valuenum]);
-	}else{
-		$var = stripslashes(trim($matches[$valuenum]));
+
+	if(!empty($matches) && !empty($matches[$valuenum])){
+		if(empty($stripslashes)){
+			$var = trim($matches[$valuenum]);
+		}else{
+			$var = stripslashes(trim($matches[$valuenum]));
+		}
 	}
 }
 
@@ -829,7 +832,7 @@ function backuply_license(){
 		return;
 	}
 
-	$resp = wp_remote_get(BACKUPLY_API.'/license.php?license='.$license, array('timeout' => 30));
+	$resp = wp_remote_get(BACKUPLY_API.'/license.php?license='.$license.'&url='.rawurlencode(esc_url_raw(home_url())), array('timeout' => 30, 'sslverify' => false));
 
 	if(is_array($resp)){
 		$json = json_decode($resp['body'], true);
@@ -859,7 +862,7 @@ function backuply_load_license(){
 	global $backuply;
 	
 	// Load license
-	$backuply['license'] = get_option('backuply_license');
+	$backuply['license'] = get_option('backuply_license', []);
 
 	if(empty($backuply['license']['last_update'])){
 		$backuply['license']['last_update'] = time() - 86600;
@@ -996,20 +999,21 @@ function backuply_delete_backup($tar_file) {
 	if(!empty($files_exists)){
 		// Delete the backup
 		@unlink($backup_dir.'/'.$_file);
-		//backuply_log($_file.' Backup deleted successfully');
-		
+
 		// Delete the backup_info file
 		@unlink($backup_info_dir.'/'.$bkey.'.php');
-		//backuply_log($_file.' Backupi info file deleted successfully');
 		
 		// If the Location is remote
-		@unlink($backup_dir.'/'.$bkey.'.php');
-		@unlink($backup_dir.'/'.$bkey.'.info'); // Changed to info file since 1.0.2
-		
-		// Deleting log files from remote and local
-		@unlink($backup_dir.'/'.$bkey.'.log');
-		@unlink(BACKUPLY_BACKUP_DIR . $bkey.'_log.php');
-		
+		if(strpos($backup_dir, '://') !== FALSE){
+			@unlink($backup_dir.'/'.$bkey.'.info'); // Changed to info file since 1.0.2
+			@unlink($backup_dir.'/'.$bkey.'.log');
+		}
+
+		// Deleting log files from local
+		if(file_exists(BACKUPLY_BACKUP_DIR . $bkey.'_log.php')){
+			@unlink(BACKUPLY_BACKUP_DIR . $bkey.'_log.php');
+		}
+
 		$deleted = true;
 	}else{
 
@@ -1018,11 +1022,15 @@ function backuply_delete_backup($tar_file) {
 		
 		// If the Location is remote
 		@unlink($backup_dir.'/'.$bkey.'.php');
-		@unlink($backup_dir.'/'.$bkey.'.info'); // Changed to info file since 1.0.2
+		if(strpos($backup_dir, '://') !== FALSE){
+			@unlink($backup_dir.'/'.$bkey.'.info'); // Changed to info file since 1.0.2
+			@unlink($backup_dir.'/'.$bkey.'.log');
+		}
 		
 		// Deleting log files from remote and local
-		@unlink($backup_dir.'/'.$bkey.'.log');
-		@unlink(BACKUPLY_BACKUP_DIR . $bkey.'_log.php');
+		if(file_exists(BACKUPLY_BACKUP_DIR . $bkey.'_log.php')){
+			@unlink(BACKUPLY_BACKUP_DIR . $bkey.'_log.php');
+		}
 		
 		$deleted = true;
 	}
@@ -1164,22 +1172,21 @@ function backuply_stream_wrapper_register($protocol, $classname){
 
 // Includes Lib Files
 function backuply_include_lib($protocol) {
-	
+
 	if(!class_exists($protocol)){
-		
 		if(file_exists(BACKUPLY_DIR.'/lib/'.$protocol.'.php')) {
 			include_once(BACKUPLY_DIR.'/lib/'.$protocol.'.php');
 			return true;
 		}
-		
+
 		if(defined('BACKUPLY_PRO') && defined('BACKUPLY_PRO_DIR') && file_exists(BACKUPLY_PRO_DIR . '/lib/' .$protocol . '.php')) {
 			include_once(BACKUPLY_PRO_DIR . '/lib/' .$protocol . '.php');
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1464,20 +1471,33 @@ function backuply_sync_remote_backup_logs($location_id, $fname){
 	
 }
 
-
-
 //Fix the serialization in Cloned DB Tables
 function backuply_wp_clone_sql($table, $field_prefix, $keepalive, $i = null){
 
 	global $wpdb;
-	
+
 	if(empty($wpdb)){
 		backuply_log('Fix Serialization failed: unable to connect to the database');
 		return false;
 	}
 	
-	$cnt_qry = "SELECT count('".$field_prefix."_id') as count_".$field_prefix." FROM `".$wpdb->prefix.$table . "`;";
+	if(empty($table) || empty($field_prefix)){
+		return false;
+	}
+	
+	$possible_tables = ['options', 'postmeta', 'commentmeta'];
+	$possible_fields = ['option', 'meta'];
 
+	// We make sure here that we do not process any unwanted data.
+	if(!in_array($table, $possible_tables, true) || !in_array($field_prefix, $possible_fields, true)){
+		return false;
+	}
+
+	if($wpdb->has_cap('identifier_placeholders')){
+		$cnt_qry = $wpdb->prepare("SELECT count(%i) as %i FROM %i", [$field_prefix.'_id', 'count_'.$field_prefix, $wpdb->prefix.$table]);
+	} else {
+		$cnt_qry = $wpdb->prepare("SELECT count(%s) as %s FROM `".$wpdb->prefix.$table . "`", [$field_prefix.'_id', 'count_'.$field_prefix]);
+	}
 	$result = $wpdb->get_results($cnt_qry);
 	$result = json_decode(json_encode($result[0]), true);
 	$cnt_res = $result['count_'.$field_prefix];
@@ -1485,12 +1505,8 @@ function backuply_wp_clone_sql($table, $field_prefix, $keepalive, $i = null){
 	$count = 10000;
 	$limit = 0;
 
-	$org_query = "SELECT `".$field_prefix."_id`, `".$field_prefix."_value` FROM `".$wpdb->prefix.$table."` ORDER BY ".$field_prefix."_id";
-	
-	
 	if(is_null($i)){
 		$i = $cnt_res;
-		
 		backuply_status_log('Repairing '. $wpdb->prefix.$table, 'repairing', 80);
 	}
 	
@@ -1501,11 +1517,14 @@ function backuply_wp_clone_sql($table, $field_prefix, $keepalive, $i = null){
 		if(time() > $keepalive){
 			return (int) $i;
 		}
-		
-		$query = $org_query.' LIMIT '.$limit.', '.$count.';';
-		
+
+		if($wpdb->has_cap('identifier_placeholders')){
+			$query = $wpdb->prepare("SELECT %i, %i FROM %i ORDER BY %i LIMIT %d, %d", [$field_prefix.'_id', $field_prefix.'_value', $wpdb->prefix.$table, $field_prefix.'_id', $limit, $count]);
+		} else {
+			$query = $wpdb->prepare("SELECT `".$field_prefix."_id`, `".$field_prefix."_value` FROM `".$wpdb->prefix.$table."` ORDER BY %s LIMIT %d, %d", [$field_prefix.'_id', $limit, $count]);
+		}
+
 		$result = $wpdb->get_results($query);
-		
 		
 		// If there are no more rows we need to break the loop
 		if(empty($result[0])){
@@ -1521,8 +1540,13 @@ function backuply_wp_clone_sql($table, $field_prefix, $keepalive, $i = null){
 			if(preg_match('/^a:(.*?):{/is', $rv[$field_prefix.'_value']) || preg_match('/^O:(.*?):{/is', $rv[$field_prefix.'_value'])){
 				
 				if(preg_match('/^utf8(.*?)/is', $wpdb->charset) && empty($conn)){
-					$_unserialize = backuply_unserialize(mb_convert_encoding($rv[$field_prefix.'_value'], 'UTF-8', 'ISO-8859-1'));
-					$updated_data = (!function_exists('get_magic_quotes_gpc') || !get_magic_quotes_gpc()) ? addslashes(mb_convert_encoding(serialize($_unserialize), 'ISO-8859-1', 'UTF-8')) : mb_convert_encoding(serialize($_unserialize), 'ISO-8859-1', 'UTF-8');
+					$encoding = mb_detect_encoding($rv[$field_prefix.'_value']);
+					if(empty($encoding)){
+						$encoding = 'ISO-8859-1';
+					}
+
+					$_unserialize = backuply_unserialize(mb_convert_encoding($rv[$field_prefix.'_value'], 'UTF-8', 'auto'));
+					$updated_data = (!function_exists('get_magic_quotes_gpc') || !get_magic_quotes_gpc()) ? addslashes(mb_convert_encoding(serialize($_unserialize), $encoding, 'UTF-8')) : mb_convert_encoding(serialize($_unserialize), $encoding, 'UTF-8');
 				}else{
 					$_unserialize = backuply_unserialize($rv[$field_prefix.'_value']);
 					$updated_data = (!function_exists('get_magic_quotes_gpc') || !get_magic_quotes_gpc()) ? addslashes(serialize($_unserialize)) : serialize($_unserialize);
@@ -1532,12 +1556,11 @@ function backuply_wp_clone_sql($table, $field_prefix, $keepalive, $i = null){
 				
 				$sresult = $wpdb->query($update_query);
 			}
-		}
-		
-		$i--;
-	}
 
-	$limit = $limit + $count;
+			$i--;
+			$limit++;
+		}
+	}
 	
 	return true;
 }
@@ -1611,11 +1634,6 @@ function backuply_copy_log_file($is_restore = false, $file_name = ''){
 	copy(BACKUPLY_BACKUP_DIR . 'backuply_log.php', BACKUPLY_BACKUP_DIR . $copy_to);
 
 }
-
-function backuply_clean_file_name($file){
-	return str_replace(['..', '/'], '', $file);
-}
-
 
 function backuply_pattern_type_text($type) {
 		
@@ -1702,7 +1720,8 @@ function backuply_restore_curl($info = array()) {
 		'sslverify' => false,
 		'headers' => [
 			'Referer' => (!empty($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : 'http') .'://'. $_SERVER['SERVER_NAME'],
-		]
+		],
+		'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
 	);
 
 	wp_remote_post($info['restore_curl_url'], $args);
@@ -1711,6 +1730,9 @@ function backuply_restore_curl($info = array()) {
 // Shifts the Config keys from file to db for user below 1.2.0.
 function backuply_keys_to_db(){
 	$config = backuply_get_config();
+	if(isset($config['RESTORE_KEY'])){
+		unset($config['RESTORE_KEY']); // Restore Key gets generated every time a restore is created.
+	}
 
 	update_option('backuply_config_keys', $config);
 	unlink(BACKUPLY_BACKUP_DIR . '/backuply_config.php');
@@ -1786,7 +1808,7 @@ function backuply_schedule_quota_updation($location){
 			}
 		}
 		
-		update_option('backuply_remote_backup_locs', $info);
+		update_option('backuply_remote_backup_locs', $info, false);
 	}
 
 	backuply_log('Scheduled Quota Update: Fetched Quota updated successfully!');
@@ -1803,7 +1825,7 @@ function backuply_delete_tmp(){
 
 	if(!empty($files)){
 		foreach($files as $file){
-			if(!file_exists($file)){
+			if(!file_exists($file) || is_dir($file)){
 				continue;
 			}
 
@@ -1841,7 +1863,62 @@ function backuply_delete_tmp(){
 				}
 			}
 		}
+	}
+}
 
+function backuply_add_mime_types($mimes) {
+
+    if(!array_key_exists('tar', $mimes)){
+        $mimes['tar'] =  'application/x-tar';
+    }
+
+    if(!array_key_exists('gz|gzip', $mimes) && !array_key_exists('gz', $mimes)){
+        $mimes['gz|gzip'] = 'application/x-gzip';
+    }
+
+    return $mimes;
+}
+
+function backuply_sanitize_filename($filename){
+	$filename = sanitize_file_name($filename);
+	// We need to remove "_" as sanitize_file_name adds it if the file 
+	// have more than 2 extensions, which in our case happens sometimes, if the 
+	// URL of the website, has a sub domain or has TLD as .co.in or similar.
+	$filename = str_replace('_.', '.', $filename);
+
+	return $filename;
+}
+
+function backuply_direct_download_file(){
+	check_admin_referer('backuply_download_security', 'security');
+
+	if(!current_user_can('manage_options')){
+		wp_die('You do not have required privilege to download the file');
+	}
+	
+	@set_time_limit(0);
+
+	$filename = backuply_optget('backup_name');
+	$filename = backuply_sanitize_filename($filename);
+	$backups_dir = backuply_glob('backups');
+	
+	$file_path = $backups_dir . '/'. $filename;
+
+	if(!file_exists($file_path)){
+		wp_die('File does not exists');
 	}
 
+	wp_ob_end_flush_all();
+
+	// Get the file size
+	$file_size = filesize($file_path);
+
+	// Handle range requests
+	header('Content-Type: application/octet-stream');
+	header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+	header('Content-Transfer-Encoding: binary');
+	header('Content-Length: ' . $file_size);
+
+	readfile($file_path);
+	die();
 }

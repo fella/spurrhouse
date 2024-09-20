@@ -2,9 +2,9 @@
 Contributors: pagelayer, softaculous
 Tags: page builder, editor, drag and drop, gutenberg, blocks, form builder, landing page, responsive, woocommerce, website builder, website design, visual editor, maintenance mode, wysiwyg, page editor, front end, parallax design, widgets, block, button, category, contact, contact form, e-commerce, facebook, form, gallery, image, import, coming soon, links, menu, mega menu, multisite, site builder, fast performance, plugin, popup, post, SEO, shortcode, sidebar, slider, social, tags, themes, Twitter, video, widget, youtube, header, footer, portfolio, custom, color, full site editing, sticky post, template, under construction, grid layout, popular, page, softaculous, design, gutenberg blocks
 Requires at least: 4.7
-Tested up to: 6.4
+Tested up to: 6.6
 Requires PHP: 5.5
-Stable tag: 1.8.4
+Stable tag: 1.9.1
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -130,6 +130,29 @@ Do you have questions related to Pagelayer? Use the following links :
 9. **Content Slides** can be designed without the effort of installing extra plugins.
 
 == Changelog ==
+
+= 1.9.1 (Sep 19, 2024) =
+* [Bug-fix] Readme.txt had the old version. Hence launching a new version with correct number.
+
+= 1.9.0 (Sep 19, 2024) =
+* [Bug-fix] Improved sanitization of input for some settings.
+
+= 1.8.9 (Sep 11, 2024) =
+* [Task] Import templates functionality has been further improved.
+
+= 1.8.8 (Aug 13, 2024) =
+* [Bug-fix] The Google API key was not sanitized properly. This is fixed.
+* [Bug-fix] There was some PHP warnings. This is fixed.
+
+= 1.8.7 (Jul 25, 2024) =
+* [Bug-fix] In some cases PageLayer auto installer was not working properly. This is fixed.
+
+= 1.8.6 (Jul 16, 2024) =
+* [Task] Tested compatibility with WordPress 6.5 and made required changes.
+* [Bug-fix] The widget child selector in the Pagelayer Editor has been further improved.
+
+= 1.8.5 (March 19, 2024) =
+* [Security-Fix] An XSS vulnerability has been fixed. Please upgrade to this version as soon as possible!
 
 = 1.8.4 (March 05, 2024) =
 * [Security-Fix] An XSS vulnerability has been fixed. Please upgrade to this version as soon as possible!

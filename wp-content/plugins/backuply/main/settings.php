@@ -238,10 +238,10 @@ function backuply_page_backup(){
 
 			$fetch_fileindex = get_option('backuply_additional_fileindex');
 			if(empty($fetch_fileindex)){
-				add_option('backuply_additional_fileindex', $tmp_add_to_fileindex);
+				add_option('backuply_additional_fileindex', $tmp_add_to_fileindex, false);
 				$saved = true;
 			}else{
-				update_option('backuply_additional_fileindex', $tmp_add_to_fileindex);
+				update_option('backuply_additional_fileindex', $tmp_add_to_fileindex, false);
 				$saved = true;
 			}
 		}else{
@@ -898,7 +898,7 @@ function backuply_page_backup(){
 		$remote_backup_locs[$location_id]['name'] = $loc_name;
 		$remote_backup_locs[$location_id]['protocol'] = $protocol;
 		$remote_backup_locs[$location_id]['backup_loc'] = $backup_loc;
-		$remote_backup_locs[$location_id]['full_backup_loc'] = $full_backup_loc;
+		$remote_backup_locs[$location_id]['full_backup_loc'] = !empty($full_backup_loc) ? $full_backup_loc : '';
 
 		if($protocol == 'dropbox'){
 			$remote_backup_locs[$location_id]['dropbox_token'] = $dropbox_access_token;
@@ -965,6 +965,16 @@ global $backuply, $error, $success, $protocols, $wpdb;
 	//Load the theme's header
 	backuply_page_header('Backup');
 	
+	$backups_dir = backuply_glob('backups');
+	$backups_info_dir = backuply_glob('backups_info');
+	
+	if(empty($backups_dir) || empty($backups_info_dir)){
+		
+		$backup_folder_suffix = wp_generate_password(6, false);
+		
+		$error['folder_issue'] = __('Backuply was unable to create a directory where it creates backups, please create the following folders in wp-content/backuply directory', 'backuply') . '<code>backups_info-' . $backup_folder_suffix .'</code> and <code>backups-' . $backup_folder_suffix . '</code> <a href="https://backuply.com/docs/common-issues/backup-unable-to-open-in-write-mode/" target="_blank">Read More for detailed guide</a>';
+	}
+
 	if(!empty($error)){
 		backuply_report_error($error);
 	}
@@ -1828,18 +1838,32 @@ if(file_exists(BACKUPLY_BACKUP_DIR . 'restoration/restoration.php')){
 						$proto_id = !empty($all_info->backup_location) ? $all_info->backup_location : '';
 		
 						if(!empty($all_info->backup_location)) {
-							if(empty($backuply_remote_backup_locs[$all_info->backup_location]['protocol'])) {
+
+							if(empty($backuply_remote_backup_locs[$all_info->backup_location]) || empty($backuply_remote_backup_locs[$all_info->backup_location]['protocol'])) {
+								$backups_folder = backuply_glob('backups');
+
+								// This is to fix the given case: When the user uploads the backup file, and syncs it and if 
+								// the info file has a backup_location set with some id and there is no backup location added
+								// with that ID then the backup does not shows in the history tab.
+								// So if that case happens we unset the backup_location so that the backups could be shown as
+								// local folder backup.
+								if(empty($backups_folder) ||  !file_exists($backups_folder . '/'. $all_info->name. '.tar.gz')){
+									continue;
+								}
+
+								$all_info->backup_location = null;
+							}
+
+							if(!empty($all_info->backup_location) && !array_key_exists($backuply_remote_backup_locs[$all_info->backup_location]['protocol'], backuply_get_protocols())) {
 								continue;
 							}
 							
-							if(!array_key_exists($backuply_remote_backup_locs[$all_info->backup_location]['protocol'], backuply_get_protocols())) {
-								continue;
+							if(!empty($all_info->backup_location)){
+								$backup_protocol = $backuply_remote_backup_locs[$all_info->backup_location]['protocol'];
+								$s3_compat = !empty($backuply_remote_backup_locs[$all_info->backup_location]['s3_compatible']) ? $backuply_remote_backup_locs[$all_info->backup_location]['s3_compatible'] : '';
+								$backup_loc_name = $backuply_remote_backup_locs[$all_info->backup_location]['name'];
+								$backup_server_host = isset($backuply_remote_backup_locs[$all_info->backup_location]['server_host']) ? $backuply_remote_backup_locs[$all_info->backup_location]['server_host'] : '-';
 							}
-							
-							$backup_protocol = $backuply_remote_backup_locs[$all_info->backup_location]['protocol'];
-							$s3_compat = !empty($backuply_remote_backup_locs[$all_info->backup_location]['s3_compatible']) ? $backuply_remote_backup_locs[$all_info->backup_location]['s3_compatible'] : '';
-							$backup_loc_name = $backuply_remote_backup_locs[$all_info->backup_location]['name'];
-							$backup_server_host = isset($backuply_remote_backup_locs[$all_info->backup_location]['server_host']) ? $backuply_remote_backup_locs[$all_info->backup_location]['server_host'] : '-';
 
 						}
 						
@@ -1917,8 +1941,7 @@ if(file_exists(BACKUPLY_BACKUP_DIR . 'restoration/restoration.php')){
 							<td style="text-align:center;">
 								<?php if($backup_loc_name == 'Local') {
 									?>
-									<button class="button button-primary backuply-download-backup" data-name="<?php echo esc_attr($all_info->name .'.'. $all_info->ext); ?>"><?php esc_html_e('Download', 'backuply'); ?></button>
-									<div class="button button-primary backuply-download-progress" style="display:none;">0 % <?php esc_html_e('Downloading', 'backuply'); ?></div>
+									<a class="button button-primary" href="<?php echo admin_url('admin-post.php?backup_name='.esc_attr($all_info->name .'.'. $all_info->ext) . '&security='.wp_create_nonce('backuply_download_security').'&action=backuply_download_backup'); ?>" download><?php esc_html_e('Download', 'backuply'); ?></a>
 								<?php
 								}else if($backup_loc_name == 'Backuply Cloud'){
 									echo '<button type="button" class="button button-primary backuply-download-bcloud" data-name="'.esc_attr($all_info->name .'.'. $all_info->ext).'">'.esc_html__('Download', 'backuply').'</button>';
@@ -1981,6 +2004,7 @@ if(file_exists(BACKUPLY_BACKUP_DIR . 'restoration/restoration.php')){
 		</div>
 		<div class="backuply-settings-block">
 			You can contact the Backuply Team via email. Our email address is <a href="mailto:support@backuply.com">support@backuply.com</a> or through Our <a href="https://softaculous.deskuss.com/open.php?topicId=17" target="_blank">Support Ticket System</a>
+			<p>You can also check the docs <a href="https://backuply.com/docs/" target="_blank">https://backuply.com/docs/</a> to review some common issues. You might find something helpful there.</p>
 		</div>
 	</div>
 	<?php 

@@ -19,8 +19,6 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
-		<?php echo '<h3New Feature</h3>';?>
-			<p style="font-size:24px;font-weight:600">Template edit MASTER</p>
 		<?php
 		the_content();
 

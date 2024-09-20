@@ -151,6 +151,13 @@ function pagelayer_POSTchecked($name, $default = false){
 
 }
 
+// For check isset value
+function pagelayer_isset($var, $name, $default = ''){
+
+	return isset($var[$name]) ? $var[$name] : $default;
+
+}
+
 function pagelayer_POSTselect($name, $value, $default = false){
 
 	if(empty($_POST)){
@@ -641,7 +648,9 @@ function pagelayer_load_shortcodes(){
 	
 	// We have loaded
 	$pagelayer->shortcode_loaded = 1;
-
+	
+	do_action('pagelayer_before_load_shortcodes');
+	
 	// pQuery
 	include_once(PAGELAYER_DIR.'/lib/pquery/IQuery.php');
 	include_once(PAGELAYER_DIR.'/lib/pquery/gan_formatter.php');
@@ -653,10 +662,10 @@ function pagelayer_load_shortcodes(){
 	include_once(PAGELAYER_DIR.'/lib/pquery/pQuery.php');
 
 	include_once(PAGELAYER_DIR.'/main/shortcode_functions.php');
-	if(defined('PAGELAYER_PREMIUM')){
-		include_once(PAGELAYER_DIR.'/main/freemium_functions.php');
-		include_once(PAGELAYER_DIR.'/main/premium_functions.php');
-	}
+	
+	// Apply filter to load custom widgets functions
+	do_action('pagelayer_load_shortcode_functions');
+	
 	include_once(PAGELAYER_DIR.'/main/shortcodes.php');
 	
 	// Apply filter to load custom widgets
@@ -702,6 +711,8 @@ function pagelayer_load_shortcodes(){
 		$pagelayer->saved_sections = $global_widgets['section'];
 		$pagelayer->global_sections = $global_widgets['global_section'];
 	}
+	
+	do_action('pagelayer_after_load_shortcodes');
 }
 
 // Add the shortcodes to the pagelayer list
@@ -1206,12 +1217,13 @@ function pagelayer_xss_content($data){
 		return $matches[1];
 	}
 	
-	$not_allowed = array('onclick', 'ondblclick', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onload', 'onunload', 'onchange', 'onsubmit', 'onreset', 'onselect', 'onblur', 'onfocus', 'onkeydown', 'onkeypress', 'onkeyup', 'onafterprint', 'onbeforeprint', 'onbeforeunload', 'onerror', 'onhashchange', 'onmessage', 'onoffline', 'ononline', 'onpagehide', 'onpageshow', 'onpopstate', 'onresize', 'onstorage', 'oncontextmenu', 'oninput', 'oninvalid', 'onsearch', 'onmousewheel', 'onwheel', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onscroll', 'oncopy', 'oncut', 'onpaste', 'onabort', 'oncanplay', 'oncanplaythrough', 'oncuechange', 'ondurationchange', 'onemptied', 'onended', 'onloadeddata', 'onloadedmetadata', 'onloadstart', 'onpause', 'onplay', 'onplaying', 'onprogress', 'onratechange', 'onseeked', 'onseeking', 'onstalled', 'onsuspend', 'ontimeupdate', 'onvolumechange', 'onwaiting', 'ontoggle', 'onanimationstart', 'onanimationcancel', 'onanimationend', 'onanimationiteration', 'onauxclick', 'onbeforeinput', 'onbeforematch', 'onbeforexrselect', 'oncompositionend', 'oncompositionstart', 'oncompositionupdate', 'oncontentvisibilityautostatechange', 'focusout', 'onfocusin', 'onfullscreenchange', 'onfullscreenerror', 'ongotpointercapture', 'onlostpointercapture', 'onmouseenter', 'onmouseleave', 'onpointercancel', 'onpointerdown', 'onpointerenter', 'onpointerleave', 'onpointermove', 'onpointerout', 'onpointerover', 'onpointerrawupdate', 'onpointerup', 'onscrollend', 'onsecuritypolicyviolation', 'ontouchcancel', 'ontouchend', 'ontouchmove', 'ontouchstart', 'ontransitioncancel', 'ontransitionend', 'ontransitionrun', 'ontransitionstart', 'onMozMousePixelScroll', 'onDOMActivate', 'onafterscriptexecute', 'onbeforescriptexecute', 'onDOMMouseScroll' );
+	// These events not start with on
+	$not_allowed = array('click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'load', 'unload', 'change', 'submit', 'reset', 'select', 'blur', 'focus', 'keydown', 'keypress', 'keyup', 'afterprint', 'beforeprint', 'beforeunload', 'error', 'hashchange', 'message', 'offline', 'online', 'pagehide', 'pageshow', 'popstate', 'resize', 'storage', 'contextmenu', 'input', 'invalid', 'search', 'mousewheel', 'wheel', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'scroll', 'copy', 'cut', 'paste', 'abort', 'canplay', 'canplaythrough', 'cuechange', 'durationchange', 'emptied', 'ended', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting', 'toggle', 'animationstart', 'animationcancel', 'animationend', 'animationiteration', 'auxclick', 'beforeinput', 'beforematch', 'beforexrselect', 'compositionend', 'compositionstart', 'compositionupdate', 'contentvisibilityautostatechange', 'focusout', 'focusin', 'fullscreenchange', 'fullscreenerror', 'gotpointercapture', 'lostpointercapture', 'mouseenter', 'mouseleave', 'pointercancel', 'pointerdown', 'pointerenter', 'pointerleave', 'pointermove', 'pointerout', 'pointerover', 'pointerrawupdate', 'pointerup', 'scrollend', 'securitypolicyviolation', 'touchcancel', 'touchend', 'touchmove', 'touchstart', 'transitioncancel', 'transitionend', 'transitionrun', 'transitionstart', 'MozMousePixelScroll', 'DOMActivate', 'afterscriptexecute', 'beforescriptexecute', 'DOMMouseScroll', 'willreveal', 'gesturechange', 'gestureend', 'gesturestart', 'mouseforcechanged', 'mouseforcedown', 'mouseforceup', 'mouseforceup');
 	
 	$not_allowed = implode('|', $not_allowed);
 		
-	if(preg_match('/('.($not_allowed).')=/is', $data, $matches)){
-		return $matches[1];
+	if(preg_match('/(on|onwebkit)+('.($not_allowed).')=/is', $data, $matches)){
+		return $matches[1]+$matches[2];
 	}
 	
 	return;
@@ -1494,7 +1506,7 @@ function pagelayer_show_pro_notice(){
 		return;
 	}
 	
-	echo '<div class="pagelayer-notice pagelayer-notice-info">'.__('This feature is a part of <a href="'.PAGELAYER_PRO_URL.'" target="_blank">Pagelayer Pro</a>. You will need to purchase <a href="'.PAGELAYER_PRO_URL.'" target="_blank">Pagelayer Pro</a> to use this feature.').'</div>';
+	echo '<div class="pagelayer-notice pagelayer-notice-info">'.__('This feature is a part of <a href="'.PAGELAYER_PRO_PRICE_URL.'" target="_blank">Pagelayer Pro</a>. You will need to purchase <a href="'.PAGELAYER_PRO_PRICE_URL.'" target="_blank">Pagelayer Pro</a> to use this feature.').'</div>';
 	
 }
 
@@ -1509,7 +1521,7 @@ function pagelayer_show_pro_div($head = '', $message = '', $admin_css = 1){
 		$pro_url = 'https://popularfx.com/pricing?from=pagelayer-plugin';
 		$pro_txt = 'PopularFX Pro';
 	}else{
-		$pro_url = PAGELAYER_PRO_URL;
+		$pro_url = PAGELAYER_PRO_PRICE_URL;
 		$pro_txt = 'Pagelayer Pro';
 	}
 	
@@ -2584,77 +2596,14 @@ function pagelayer_enabled_icons(){
 	
 }
 
-// Install the Pro version
-function pagelayer_install_pro(){
-	
-	global $pagelayer;
-	
-	// Include the necessary stuff
-	include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
-
-	// Includes necessary for Plugin_Upgrader and Plugin_Installer_Skin
-	include_once( ABSPATH . 'wp-admin/includes/file.php' );
-	include_once( ABSPATH . 'wp-admin/includes/misc.php' );
-	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-
-	// Filter to prevent the activate text
-	add_filter('install_plugin_complete_actions', 'pagelayer_install_plugin_complete_actions', 10, 3);
-
-	$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin(  ) );
-	$installed = $upgrader->install(PAGELAYER_API.'download.php?version=latest&license='.$pagelayer->license['license']);
-	
-	if ( !is_wp_error( $installed ) && $installed ) {
-		echo 'Activating Pagelayer Pro !';
-		$activate = activate_plugin(PAGELAYER_PRO_BASE);
-		
-		if ( is_null($activate) ) {
-			echo '<div id="message" class="updated"><p>'. __('Done! Pagelayer Pro is now installed and activated.', 'pagelayer'). '</p></div><br />';
-			echo '<br><br><b>Done! Pagelayer Pro is now installed and activated.</b>';
-		}
-	}
-	
-	return $installed;
-	
-}
-
 // Prevent pro activate text for installer
 function pagelayer_install_plugin_complete_actions($install_actions, $api, $plugin_file){
 	
-	if($plugin_file == PAGELAYER_PRO_BASE){
+	if($plugin_file == PAGELAYER_PREMIUM_BASE){
 		return array();
 	}
 	
 	return $install_actions;
-}
-
-// Load license data
-function pagelayer_load_license(){
-	
-	global $pagelayer;
-	
-	// Load license
-	$pagelayer->license = get_option('pagelayer_license');
-	
-	// Update license details as well
-	if(!empty($pagelayer->license) && (time() - @$pagelayer->license['last_update']) >= 86400){
-		
-		$resp = wp_remote_get(PAGELAYER_API.'license.php?license='.$pagelayer->license['license']);
-		
-		// Did we get a response ?
-		if(is_array($resp)){
-			
-			$tosave = json_decode($resp['body'], true);
-			
-			// Is it the license ?
-			if(!empty($tosave['license'])){
-				$tosave['last_update'] = time();
-				update_option('pagelayer_license', $tosave);
-			}
-			
-		}
-		
-	}
-	
 }
 
 // Handle hexa to rgba and also remove alpha which is ff
@@ -3725,7 +3674,7 @@ function pagelayer_is_empty_array($arr){
 }
 
 // Pagelayer load font family
-function pagelayer_load_font_family($font, $font_weight, $font_style){
+function pagelayer_load_font_family($font, $font_weight='', $font_style=''){
 	global $pagelayer;
 
 	// Load global fonts

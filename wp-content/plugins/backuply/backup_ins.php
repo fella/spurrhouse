@@ -5,6 +5,10 @@
 * (c) Backuply Team
 */
 
+if(!defined('ABSPATH')){
+	die('HACKING ATTEMPT!');
+}
+
 //PHP Options
 if(!set_time_limit(300)){
 	set_time_limit(60);
@@ -865,7 +869,16 @@ function backuply_mysql_connect($host, $user, $pass, $newlink = false){
 		$exh = explode(':', $host);
 
 		if(!empty($exh[1])){
-			$sconn = @mysqli_connect($exh[0], $user, $pass, '', $exh[1]);
+			$sock = null;
+			$port = $exh[1];
+
+			// This is when the db connection is made using socket.
+			if(!is_numeric($exh[1])){
+				$sock = $exh[1];
+				$port = null;
+			}
+
+			$sconn = @mysqli_connect($exh[0], $user, $pass, '', $port, $sock);
 		}else{
 			$sconn = @mysqli_connect($host, $user, $pass);
 		}
@@ -1385,7 +1398,7 @@ Backuply';
 		backuply_copy_log_file(false); // For Last Log File
 
 		die();
-	}	
+	}
 	
 	if($txt == 'DONE'){
 		backuply_backup_stop_checkpoint();
@@ -1430,7 +1443,7 @@ Backuply';
 		}
 		
 		backuply_status_log('Archive created with a file size of '. backuply_format_size($info_data['size']) , 'info', 100);
-		update_option('backuply_last_backup', time());
+		update_option('backuply_last_backup', time(), false);
 		backuply_status_log('Backup Successfully Completed', 'success', 100);
 		
 		backuply_copy_log_file(false); // For Last Log File
@@ -1525,11 +1538,12 @@ function backuply_backup_curl($action) {
 	$url = site_url() . '/?action='.$action.'&security='. $nonce;
 	
 	backuply_status_log('About to call self to prevent timeout', 'info');
-	
+
 	$args = array(
 		'timeout' => 5,
 		'blocking' => false,
-		'sslverify' => false
+		'sslverify' => false,
+		'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
 	);
 
 	if(!empty($_COOKIE[LOGGED_IN_COOKIE])){
@@ -1665,7 +1679,7 @@ function backuply_remote_upload($finished = false){
 # BACKUP LOGIC STARTS HERE !
 #####################################################
 
-global $user, $globals, $can_write, $error;
+global $user, $globals, $can_write, $error, $backuply;
 
 // Check if we can write
 $can_write = backuply_can_create_file();
@@ -1677,6 +1691,10 @@ if(empty($can_write)){
 
 // Retrieve all the information from the form
 $data = array();
+
+if(empty($backuply['excludes'])){
+	$backuply['excludes'] = [];
+}
 
 //Exclude the "backuply" folder
 $backuply['excludes']['exact'][] = backuply_cleanpath(BACKUPLY_BACKUP_DIR);
@@ -1961,7 +1979,6 @@ if(empty($GLOBALS['error']) && (!empty($f_list) || !empty($post_soft_list) || !e
 	
 	backuply_backup_stop_checkpoint();
 	backuply_status_log('Starting to create archive', 'info', 60);
-	
 	if(!backuply_tar_archive($zipfile, $f_list, true)){
 		backuply_clean($data);
 		

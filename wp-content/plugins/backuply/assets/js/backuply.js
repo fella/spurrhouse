@@ -1221,7 +1221,7 @@ function backuply_restorequery(form_id){
 function backuply_heartbeat(){
 	jQuery.ajax({
 		method : 'GET',
-		url : backuply_obj.ajax_url + '?action=backuply_creating_session&security='+backuply_obj.backuply_key+'&sess_key='+backuply_obj.creating_session,
+		url : backuply_obj.ajax_url + '?action=backuply_creating_session&security='+backuply_obj.restore_key+'&sess_key='+backuply_obj.creating_session,
 		success : function(res){
 			if(res.success == true){
 				return;
@@ -1856,9 +1856,10 @@ function backuply_upload_backup(ev){
 				}
 				
 				show_alert(error_div, 'Backup <strong>'+ dropped_file.name + '</strong> of size ' + backuply_size_format(dropped_file.size) + ' successfully uploaded', 'success');
-				;
+				
+				jQuery('#backuply-btn-sync-bak').trigger('click');  // Triggers sync after upload has been completed.
+				jQuery(error_div).parent().append('<p style="text-align:center; color:green;">Syncing the backup, please wait for few seconds<span class="spinner is-active"></span></p>');
 			}
-			
 		});	
 	});
 

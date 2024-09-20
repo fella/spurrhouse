@@ -26,6 +26,27 @@ if(!defined('PAGELAYER_VERSION')) {
 
 // PageLayer Class
 class PageLayer{
+	
+	var $BRAND_TEXT;
+	var $LOGO;
+	var $action;
+	var $license;
+	var $allowed_mime_type;
+	var $template_call_sidebar;
+	var $shortcode_loaded;
+	var $anim_in_options;
+	var $anim_out_options;
+	var $slider_arrow_styles;
+	var $slider_pager_styles;
+	var $slider_options;
+	var $templates;
+	var $template_header;
+	var $template_post;
+	var $template_footer;
+	var $template_popup_ids;
+	var $load_live_errors;
+	var $rendering_template_id;
+	var $dont_make_editable;
 
 	// All Settings
 	var $settings = array();
@@ -105,6 +126,9 @@ class PageLayer{
 		// Load the langs
 		$this->l = @file_get_contents(PAGELAYER_DIR.'/languages/en.json');
 		$this->l = @json_decode($this->l, true);
+		
+		// Load the langs hook
+		$this->l = apply_filters('pagelayer_load_languages', $this->l);
 		
 		// Add after plugins_loaded
 		add_action('plugins_loaded', [ $this, 'load_extra_languages' ], 11);
