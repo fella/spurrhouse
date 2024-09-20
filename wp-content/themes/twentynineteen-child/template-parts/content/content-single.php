@@ -30,7 +30,7 @@
 						),
 					)
 				),
-				get_the_title()
+				get_the_title() . ' <h1>DUDE!</h1>'
 			)
 		);
 		wp_link_pages(
