@@ -1,8 +1,26 @@
 <?php
-$db_name='spuruomz_wp681';
-$db_username='spuruomz_wp681';
+if($_SERVER['SERVER_NAME']=="spurrhouse.dls") //change if local server name is different
+{
+    $db_name='spurrhousedb';
+    $db_username='spurrhousedb';
+    $db_password='Sup3rf0xy!';
+    $db_host= 'mysql';
+}
+else // production server database credentials
+{
+    $db_name='spuruomz_wp681';
+    $db_username='spuruomz_wp681';
+    $db_password='Sup3rf0xy!';
+    $db_host='localhost';
+}
+
+/*
+$db_name='spurrhousedb';
+$db_username='spurrhousedb';
 $db_password='Sup3rf0xy!';
-$db_host='localhost';
+$db_host= 'mysql';
+*/
+// print_r($_SERVER['SERVER_NAME']);
 
 define( 'WP_CACHE', true );
 /**
@@ -88,7 +106,7 @@ $table_prefix = 'wp_';
 define( 'WP_DEBUG', false );
 define( 'FS_METHOD', 'direct' );
 
-define('WP_DEBUG', true); 
+define('WP_DEBUG', false); 
 define('WP_DEBUG_LOG', true); 
 define('WP_DEBUG_DISPLAY', false); 
 define('SCRIPT_DEBUG', true);
