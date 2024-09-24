@@ -103,13 +103,15 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/documentation/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', false );
-define( 'FS_METHOD', 'direct' );
 
-define('WP_DEBUG', false); 
-define('WP_DEBUG_LOG', true); 
-define('WP_DEBUG_DISPLAY', false); 
-define('SCRIPT_DEBUG', true);
+define( 'FS_METHOD', 'direct' );
+@ini_set( 'max_input_vars' , 4000 );
+set_time_limit(1200);
+
+// define('WP_DEBUG', false); 
+// define('WP_DEBUG_LOG', true); 
+// define('WP_DEBUG_DISPLAY', false); 
+// define('SCRIPT_DEBUG', true);
 
 /* Add any custom values between this line and the "stop editing" line. */
 
